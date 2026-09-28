@@ -1,19 +1,19 @@
 %% ================================================================
-%  PATH PLANNING ó CAMPOS POTENCIALES + ROBOT KHEPERA (por pulsos)
-%  TraducciÛn desde Python a MATLAB
+%  PATH PLANNING ‚Äî CAMPOS POTENCIALES + ROBOT KHEPERA (por pulsos)
+%  Traducci√≥n desde Python a MATLAB
 %
-%  ConvenciÛn del mapa (Mapa.txt, en la misma carpeta que este .m):
+%  Convenci√≥n del mapa (Mapa.txt, en la misma carpeta que este .m):
 %    0  = libre
-%    1  = obst·culo
+%    1  = obst√°culo
 %    2  = inicio del robot
 %   -1  = meta
 %
 %  Requiere MATLAB R2016b o superior (funciones locales en scripts).
-%  No requiere toolboxes (la dilataciÛn se hace con conv2).
+%  No requiere toolboxes (la dilataci√≥n se hace con conv2).
 %
-%  IndexaciÛn: M(x+1, y+1)  -> x = columna del archivo, y = fila.
+%  Indexaci√≥n: M(x+1, y+1)  -> x = columna del archivo, y = fila.
 %  Las coordenadas en celdas se mantienen en base 0 (como en Python)
-%  para que las tablas de waypoints den exactamente los mismos n˙meros.
+%  para que las tablas de waypoints den exactamente los mismos n√∫meros.
 % ================================================================
 clear; clc; close all;
 
@@ -32,7 +32,7 @@ fprintf('  Archivo leido: %s\n', ruta_mapa);
 fprintf('  Filas=%d  Cols=%d\n', FILAS, COLS);
 
 %% ================================================================
-%  PARSEAR MAPA: inicio, meta y obst·culos
+%  PARSEAR MAPA: inicio, meta y obst√°culos
 % ================================================================
 M     = M_raw.';          % M(x+1, y+1)
 ANCHO = COLS;             % eje X = columnas
@@ -60,7 +60,7 @@ fprintf('  Obstaculos     : %d celdas\n', nnz(M == 1));
 fprintf('%s\n', repmat('=',1,55));
 
 %% ================================================================
-%  DILATAR OBST¡CULOS (margen de seguridad)
+%  DILATAR OBST√ÅCULOS (margen de seguridad)
 %  Equivale a skimage ball(2)[2] -> disco de radio 2
 % ================================================================
 RADIO_DILATE = 2;
@@ -75,7 +75,7 @@ M_dilat(xg+1, yg+1) = 0;
 %% ================================================================
 %  CAMPOS POTENCIALES
 %  UA = 1/2 * K * dist_a_meta
-%  UR = 10*K + 1/dist_al_inicio   (solo en obst·culos)
+%  UR = 10*K + 1/dist_al_inicio   (solo en obst√°culos)
 % ================================================================
 K = 3.0;
 [XX, YY] = ndgrid(0:ANCHO-1, 0:ALTO-1);
@@ -127,7 +127,7 @@ path_y = path_y(1:n);
 fprintf('\nPath encontrado: %d puntos\n', n);
 
 %% ================================================================
-%  DETECTAR ESQUINAS (waypoints): cambio de direcciÛn >= 20∞
+%  DETECTAR ESQUINAS (waypoints): cambio de direcci√≥n >= 20¬∞
 % ================================================================
 UMBRAL_ANGULO = deg2rad(20);
 wp_idx = 1;
@@ -143,7 +143,7 @@ for k = 2:n-1
 end
 wp_idx(end+1) = n;
 
-% Filtrar waypoints muy cercanos (distancia mÌnima 3 celdas)
+% Filtrar waypoints muy cercanos (distancia m√≠nima 3 celdas)
 wp_f = wp_idx(1);
 for idx = wp_idx(2:end)
     p = wp_f(end);
@@ -156,7 +156,7 @@ WP_x = path_x(wp_f);
 WP_y = path_y(wp_f);
 NWP  = numel(WP_x);
 
-% OrientaciÛn de cada waypoint = direcciÛn hacia el siguiente
+% Orientaci√≥n de cada waypoint = direcci√≥n hacia el siguiente
 TH = zeros(NWP, 1);
 for k = 1:NWP-1
     TH(k) = atan2(WP_y(k+1) - WP_y(k), WP_x(k+1) - WP_x(k));
@@ -178,7 +178,7 @@ for k = 1:NWP
 end
 
 %% ================================================================
-%  FIGURA 1 ó VISUALIZACI”N (6 paneles)
+%  FIGURA 1 ‚Äî VISUALIZACI√ìN (6 paneles)
 % ================================================================
 fig1 = figure('Name', 'Campos Potenciales', 'Color', BG, 'Position', [40 60 1600 900]);
 xs = [0.5, ANCHO-0.5];   ys = [0.5, ALTO-0.5];   % centros de celda (extent [0 W 0 H])
@@ -201,7 +201,7 @@ plot(ax, xi, yi, 'go', 'MarkerSize', 10, 'MarkerFaceColor', 'g');
 plot(ax, xg, yg, 'r*', 'MarkerSize', 12);
 estilo(ax, sprintf('Obstaculos Dilatados (r=%d celdas)', RADIO_DILATE), BG);
 
-% --- 3. Potencial de atracciÛn
+% --- 3. Potencial de atracci√≥n
 ax = subplot(2,3,3); hold(ax, 'on');
 imagesc(ax, xs, ys, UA.');  colormap(ax, parula);
 cb = colorbar(ax); cb.Color = 'w';
@@ -209,7 +209,7 @@ plot(ax, xi, yi, 'go', 'MarkerSize', 10, 'MarkerFaceColor', 'g');
 plot(ax, xg, yg, 'r*', 'MarkerSize', 12);
 estilo(ax, 'Potencial Atraccion U_A', BG);
 
-% --- 4. Potencial de repulsiÛn
+% --- 4. Potencial de repulsi√≥n
 ax = subplot(2,3,4); hold(ax, 'on');
 imagesc(ax, xs, ys, min(UR, 50).');  colormap(ax, hot);
 cb = colorbar(ax); cb.Color = 'w';
@@ -260,27 +260,27 @@ text(ax, 1.04, 0.99, lineas, 'Units', 'normalized', 'VerticalAlignment', 'top', 
      'FontName', 'FixedWidth', 'FontSize', 7, 'Color', 'w', 'Interpreter', 'none', ...
      'BackgroundColor', [0.10 0.10 0.18], 'EdgeColor', [0.27 0.27 0.67]);
 
-sgtitle(fig1, 'Path Planning ó Campos Potenciales  |  Mapa 100x100 cm  (2 cm/celda)', ...
+sgtitle(fig1, 'Path Planning ‚Äî Campos Potenciales  |  Mapa 100x100 cm  (2 cm/celda)', ...
         'Color', 'w', 'FontSize', 13);
 
 %% ================================================================
-%  FIGURA 2 ó ROBOT KHEPERA NAVEGANDO POR LOS WAYPOINTS
-%  Cinem·tica inversa por pulsos:
+%  FIGURA 2 ‚Äî ROBOT KHEPERA NAVEGANDO POR LOS WAYPOINTS
+%  Cinem√°tica inversa por pulsos:
 %    1. ORIENTAR   -> girar en sitio hasta apuntar al waypoint
 %    2. DESPLAZAR  -> avanzar recto contando pulsos
-%    3. REORIENTAR -> girar hasta la orientaciÛn final del waypoint
+%    3. REORIENTAR -> girar hasta la orientaci√≥n final del waypoint
 % ================================================================
 
-% --- Par·metros Khepera
+% --- Par√°metros Khepera
 P.r    = 0.008;                 % radio rueda [m]
 P.l    = 0.054;                 % distancia entre ruedas [m]
 P.dt   = 0.05;                  % paso de tiempo [s]
-P.PPR  = 600;                   % pulsos por revoluciÛn
+P.PPR  = 600;                   % pulsos por revoluci√≥n
 P.MMP  = (2*pi*P.r) / P.PPR;    % metros por pulso
 P.VLIN = 0.03;                  % m/s
 P.VROT = 0.25;                  % rad/s
 
-R_ROBOT_K = 0.0275;             % radio robot [m]  (di·metro 55 mm)
+R_ROBOT_K = 0.0275;             % radio robot [m]  (di√°metro 55 mm)
 R_RUEDA_K = 0.005;              % grosor visual rueda
 L_RUEDA_K = 0.010;              % largo visual rueda
 CEL_A_M   = 0.02;               % 1 celda = 2 cm
@@ -309,7 +309,7 @@ colores = double(fase_k).*COL_G + double(~fase_k).*COL_A;
 
 % --- Reporte de pulsos
 fprintf('\n%s\n', repmat('=', 1, 60));
-fprintf('   REPORTE DE PULSOS ó KHEPERA\n');
+fprintf('   REPORTE DE PULSOS ‚Äî KHEPERA\n');
 fprintf('%s\n', repmat('=', 1, 60));
 fprintf('  %-28s %10s %10s\n', 'Operacion', 'Delta', 'Pulsos');
 fprintf('  %s\n', repmat('-', 1, 50));
@@ -352,11 +352,11 @@ axis(ax2, 'equal');
 xlim(ax2, [0 ANCHO*CEL_A_M]);  ylim(ax2, [0 ALTO*CEL_A_M]);
 xlabel(ax2, 'x [m]');  ylabel(ax2, 'y [m]');  grid(ax2, 'on');
 leyenda(ax2, [hRuta hIni hMeta], {'Ruta potencial', 'Inicio', 'Meta'}, 'northeast');
-sgtitle(fig2, {'Robot Khepera ó Cinematica Inversa por Pulsos', ...
+sgtitle(fig2, {'Robot Khepera ‚Äî Cinematica Inversa por Pulsos', ...
                'Amarillo: Orientar   |   Verde: Desplazar   (3 pasos por waypoint)'}, ...
         'Color', 'w', 'FontSize', 11);
 
-% --- Objetos gr·ficos del robot (se crean una vez y se actualizan)
+% --- Objetos gr√°ficos del robot (se crean una vez y se actualizan)
 hTraj  = scatter(ax2, NaN, NaN, 5, [0 0 0], 'filled');
 ang    = linspace(0, 2*pi, 40);
 hBody  = patch(ax2, NaN, NaN, COL_G, 'EdgeColor', 'none', 'FaceAlpha', 0.92);
@@ -367,7 +367,7 @@ for j = 1:2
 end
 hTit = title(ax2, '', 'Color', 'w', 'FontSize', 8, 'Interpreter', 'none');
 
-% --- AnimaciÛn
+% --- Animaci√≥n
 N      = size(traj_k, 1);
 step2  = max(1, floor(N/600));
 frames = unique([1:step2:N, N]);
@@ -381,7 +381,7 @@ for fi = frames
 
     % Cuerpo
     set(hBody, 'XData', cx + R_ROBOT_K*cos(ang), 'YData', cy + R_ROBOT_K*sin(ang), 'FaceColor', col);
-    % Flecha de direcciÛn
+    % Flecha de direcci√≥n
     set(hDir, 'XData', [cx, cx + 1.7*R_ROBOT_K*cos(th)], ...
               'YData', [cy, cy + 1.7*R_ROBOT_K*sin(th)]);
     % Ruedas
@@ -400,7 +400,7 @@ for fi = frames
         set(hTraj, 'XData', traj_k(1:fi-1,1), 'YData', traj_k(1:fi-1,2), ...
                    'CData', colores(1:fi-1,:));
     end
-    % TÌtulo
+    % T√≠tulo
     if fase_k(fi), txtF = 'Orientando'; else, txtF = 'Desplazando'; end
     hTit.String = sprintf('%s  |  t=%.1fs  |  pos=(%.1f,%.1f)cm  th=%.0f deg  |  EncL=%.0fp  EncR=%.0fp', ...
         txtF, (fi-1)*P.dt, cx*100, cy*100, rad2deg(th), enc(1), enc(2));
@@ -413,7 +413,7 @@ end
 %  FUNCIONES LOCALES
 % ================================================================
 
-% --- Cinem·tica directa (diferencial)
+% --- Cinem√°tica directa (diferencial)
 function xn = cinem_dir(x, vL, vR, P)
     v  = P.r * (vR + vL) / 2;
     w  = P.r * (vR - vL) / P.l;
@@ -501,7 +501,7 @@ function [traj, x, enc, regs, fase] = ir_wp_k(x, wp, idx, P, enc)
     regs = [r1, r2, r3];
 end
 
-% --- Utilidades gr·ficas
+% --- Utilidades gr√°ficas
 function cm = mapaLineal(c0, c1, n)
     if nargin < 3, n = 256; end
     t  = linspace(0, 1, n).';
@@ -509,7 +509,7 @@ function cm = mapaLineal(c0, c1, n)
 end
 
 function capa(ax, mask, color, alfa, s)
-    % Dibuja una m·scara (indexada [x,y]) como capa de color semitransparente
+    % Dibuja una m√°scara (indexada [x,y]) como capa de color semitransparente
     [W, H] = size(mask);
     C = repmat(reshape(color, 1, 1, 3), H, W);
     image(ax, [0.5, W-0.5]*s, [0.5, H-0.5]*s, C, 'AlphaData', alfa*double(mask.'));
